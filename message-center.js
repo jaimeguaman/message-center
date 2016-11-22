@@ -99,7 +99,8 @@ MessageCenterModule
     }
   ]);
 MessageCenterModule.
-  directive('mcMessages', ['$rootScope', 'messageCenterService', function ($rootScope, messageCenterService) {
+  directive('mcMessages', ['$rootScope', 'messageCenterService', '$messageCenterService' ,
+    function ($rootScope, messageCenterService, $messageCenterService) {
     /*jshint multistr: true */
     var templateString = '\
     <div id="mc-messages-wrapper">\
@@ -120,6 +121,7 @@ MessageCenterModule.
       restrict: 'EA',
       template: templateString,
       link: function(scope, element, attrs) {
+        var options = $messageCenterService.getOptions();
         // Bind the messages from the service to the root scope.
         messageCenterService.flush();
         var changeReaction = function (event, to, from) {
@@ -131,7 +133,8 @@ MessageCenterModule.
           messageCenterService.flush();
         };
         if (messageCenterService.offlistener === undefined) {
-          messageCenterService.offlistener = $rootScope.$on('$locationChangeSuccess', changeReaction);
+          var listenerName = options.uiRouterSupport === true ? '$stateChangeSuccess' : '$locationChangeSuccess';
+          messageCenterService.offlistener = $rootScope.$on(listenerName, changeReaction);
         }
         scope.animation = attrs.animation || 'fade in';
       }
